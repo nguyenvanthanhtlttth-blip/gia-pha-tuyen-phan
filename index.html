@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gia Phả Đại Gia Đình Tuyến - Phấn | Lưu Truyền Muôn Đời</title>
+  <link rel="stylesheet" href="public/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <!-- Imperial Topbar -->
+  <div class="heritage-topbar">
+    <div class="container topbar-flex">
+      <div>
+        🏮 <strong>GIA PHẢ TRỌN ĐỜI ĐẠI GIA ĐÌNH TUYẾN - PHẤN</strong> — Lưu giữ cội nguồn cho muôn đời con cháu mai sau
+      </div>
+      <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+        <span id="connectionBadge" style="cursor: pointer;" onclick="openCloudModal()">🟢 Đang đồng bộ Đám mây 24/7</span>
+        <button
+          type="button"
+          style="background: rgba(254,243,199,0.2); border: 1px solid #fde68a; color: #fde68a; padding: 3px 10px; border-radius: 99px; cursor: pointer; font-weight: 700; font-size: 0.8rem;"
+          onclick="openCloudModal()"
+        >
+          ☁️ Kết nối Đám mây Chung
+        </button>
+        <button
+          type="button"
+          style="background: none; border: none; color: #fde68a; cursor: pointer; font-weight: 700; text-decoration: underline;"
+          onclick="openBackupModal()"
+        >
+          💾 Sao lưu / In Gia Phả
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="scroll-brand">
+        <div class="crest-emblem">族</div>
+        <div class="scroll-title">
+          <h1>GIA PHẢ NHÀ TUYẾN - PHẤN</h1>
+          <p>BỐ NGUYỄN HỒNG TUYẾN &amp; MẸ NGUYỄN THỊ PHẤN</p>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a href="#cay-gia-pha" class="btn btn-outline">🌳 Sơ Đồ Gia Phả</a>
+        <a href="#ban-do-gia-dinh" class="btn btn-outline">🗺️ Bản Đồ Quê Quán &amp; Nơi Ở</a>
+        <a href="#so-toc-4-nhanh" class="btn btn-outline">📖 Sổ Tộc 4 Nhánh</a>
+        <a href="#hoat-dong-gia-dinh" class="btn btn-outline">🎉 Hoạt Động</a>
+        <button class="btn btn-gold" onclick="openActivityModal()">
+          📸 + Đăng Hoạt Động
+        </button>
+        <button class="btn btn-crimson" id="headerAuthBtn" onclick="openLoginModal()">
+          🔐 Tài khoản Nhánh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="top">
+    <!-- Ancestral Plaque Banner -->
+    <section class="ancestral-banner">
+      <div class="couple-scroll">CỘI NGUỒN ĐẠI GIA ĐÌNH</div>
+      <h2>BỐ NGUYỄN HỒNG TUYẾN ❤️ MẸ NGUYỄN THỊ PHẤN</h2>
+      <p class="motto">
+        "Cây có cội mới trổ cành xanh lá — Nước có nguồn mới tỏa khắp rạch sông"
+      </p>
+
+      <div class="stats-ribbon">
+        <div class="stat-item">
+          <strong id="statGenerations">3 Đời</strong>
+          <span>Thế hệ nối tiếp</span>
+        </div>
+        <div class="stat-item">
+          <strong id="statBranches">4 Nhánh</strong>
+          <span>Nhản • Nhị • Nhiên • Thảnh</span>
+        </div>
+        <div class="stat-item">
+          <strong id="statTotalPeople">11 Người</strong>
+          <span>Tính cả Dâu, Rể, Con, Cháu</span>
+        </div>
+        <div class="stat-item">
+          <strong id="statActivities">2 Sự kiện</strong>
+          <span>Kỷ niệm &amp; Hoạt động</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Current Account Status & Permission Bar -->
+    <section class="account-bar">
+      <div id="currentAccountStatus"></div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="accountActionButtons"></div>
+    </section>
+
+    <!-- Interactive Family Tree Section -->
+    <section id="cay-gia-pha">
+      <div class="branch-filter-bar">
+        <div class="branch-pills" id="branchFilterPills">
+          <button class="branch-pill active" data-branch="all" onclick="setBranchFilter('all')">
+            🌳 Toàn bộ Đại Gia Đình
+          </button>
+          <button class="branch-pill" data-branch="branch-1" onclick="setBranchFilter('branch-1')">
+            Nhánh 1: Nhản - Son
+          </button>
+          <button class="branch-pill" data-branch="branch-2" onclick="setBranchFilter('branch-2')">
+            Nhánh 2: Nhị - Lợi
+          </button>
+          <button class="branch-pill" data-branch="branch-3" onclick="setBranchFilter('branch-3')">
+            Nhánh 3: Nhiên - Chiến
+          </button>
+          <button class="branch-pill" data-branch="branch-4" onclick="setBranchFilter('branch-4')">
+            Nhánh 4: Thảnh - Phương Anh
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input
+            type="text"
+            id="memberSearchInput"
+            placeholder="🔍 Tìm tên con, cháu, quê quán..."
+            oninput="handleMemberSearch(this.value)"
+            style="padding: 8px 14px; border-radius: 99px; border: 1.5px solid var(--border-gold); outline: none; font-size: 0.86rem; width: 240px;"
+          />
+          <button class="btn btn-outline" onclick="window.print()" title="In phả đồ ra giấy hoặc PDF">
+            🖨️ In Phả Đồ
+          </button>
+        </div>
+      </div>
+
+      <div class="tree-viewport">
+        <div class="family-tree" id="familyTreeContainer"></div>
+      </div>
+    </section>
+
+    <!-- Interactive Geographic Map of Family Hometowns & Current Locations -->
+    <section id="ban-do-gia-dinh" class="directory-section" style="margin-bottom: 36px;">
+      <div class="section-header">
+        <div>
+          <h3 style="color: var(--crimson-800); font-size: 1.4rem;">🗺️ Bản Đồ Quê Quán &amp; Nơi Ở Hiện Nay Của Đại Gia Đình Tuyến - Phấn</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            Hiển thị vị trí <strong>🏡 Quê quán</strong> và <strong>📍 Nơi ở hiện nay</strong> của từng thành viên trong 4 nhánh trên bản đồ. Khi bạn cập nhật Tỉnh/Thành phố trong phần <strong>"✏️ Sửa / Ảnh"</strong>, điểm ghim trên bản đồ sẽ tự động di chuyển theo!
+          </p>
+        </div>
+        <button class="btn btn-outline" onclick="fitFamilyMapBounds()">
+          🎯 Thu phóng toàn bộ Gia đình
+        </button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 18px; align-items: start;">
+        <div
+          id="familyGeoMap"
+          style="width: 100%; height: 460px; border-radius: 14px; border: 2px solid var(--border-gold); z-index: 10; background: #e6f2ff;"
+        ></div>
+        <div
+          id="familyLocationList"
+          style="max-height: 460px; overflow-y: auto; background: var(--bg-parchment); border: 1.5px solid var(--border-gold); border-radius: 14px; padding: 14px;"
+        ></div>
+      </div>
+    </section>
+
+    <!-- 4 Branches Directory Overview -->
+    <section id="so-toc-4-nhanh" class="directory-section">
+      <div class="section-header">
+        <div>
+          <h3 style="color: var(--crimson-800); font-size: 1.4rem;">📖 Sổ Tộc 4 Nhánh Con Ông Bà Tuyến - Phấn</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            Nhà ai sinh thêm con, cháu hoặc cập nhật ảnh, ngày sinh, quê quán, nơi ở thì nhấn <strong>"+ Thêm Con"</strong> hoặc <strong>"✏️ Sửa / Ảnh"</strong> ngay trên thẻ của người đó.
+          </p>
+        </div>
+      </div>
+      <div class="branch-grid" id="branchSummaryGrid"></div>
+    </section>
+
+    <!-- Family Activities & Memories Section -->
+    <section id="hoat-dong-gia-dinh" class="activities-section">
+      <div class="section-header">
+        <div>
+          <h3 style="color: var(--crimson-800); font-size: 1.45rem;">🎉 Bảng Tin Hoạt Động &amp; Kỷ Niệm Gia Đình Tuyến - Phấn</h3>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            Nơi lưu giữ hình ảnh sum họp, lễ Tết, mừng thọ, đám cưới, tin vui sinh em bé và thành tích học tập của con cháu các nhánh.
+          </p>
+        </div>
+        <button class="btn btn-crimson" onclick="openActivityModal()">
+          📸 + Đăng Hoạt Động Mới
+        </button>
+      </div>
+
+      <div class="activity-grid" id="activitiesGrid"></div>
+    </section>
+  </main>
+
+  <!-- MODAL 1: Login Branch Account -->
+  <div class="overlay" id="loginModal" onclick="if(event.target===this) closeLoginModal()">
+    <div class="modal-card" style="max-width: 540px;">
+      <button class="modal-close" onclick="closeLoginModal()">✕</button>
+      <h3 style="color: var(--crimson-800); margin-bottom: 6px;">🔐 Đăng Nhập Tài Khoản Gia Đình</h3>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 14px;">
+        <strong>Nhấn trực tiếp vào 1 trong 5 nút bên dưới để đăng nhập ngay lập tức</strong> (hoặc nhập mật khẩu mặc định: <strong>123456</strong>):
+      </p>
+
+      <div class="quick-account-list" id="quickAccountList"></div>
+
+      <form onsubmit="submitLogin(event)" style="border-top: 1px dashed var(--border-gold); padding-top: 14px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="loginUsername">Tên tài khoản *</label>
+            <input type="text" id="loginUsername" required placeholder="VD: nhanh4 hoặc admin" />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Mật khẩu *</label>
+            <input type="password" id="loginPassword" required value="123456" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-crimson" style="width: 100%; padding: 11px;">
+          🔓 Đăng nhập vào Gia Phả
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Add Child / Edit Member & Spouse -->
+  <div class="overlay" id="memberFormModal" onclick="if(event.target===this) closeMemberFormModal()">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeMemberFormModal()">✕</button>
+      <h3 id="memberModalTitle" style="color: var(--crimson-800); margin-bottom: 6px;">Thêm Thành Viên Mới</h3>
+      <p id="memberModalSubtitle" style="font-size: 0.86rem; color: var(--gold-600); font-weight: 600; margin-bottom: 14px;"></p>
+
+      <form id="memberForm" onsubmit="submitMemberForm(event)">
+        <input type="hidden" id="formMode" value="add" />
+        <input type="hidden" id="formMemberId" value="" />
+        <input type="hidden" id="formParentId" value="" />
+        <input type="hidden" id="memAvatarData" value="" />
+        <input type="hidden" id="memSpouseAvatarData" value="" />
+
+        <div class="form-group">
+          <label>📸 Ảnh chân dung thành viên (Chọn từ Điện thoại / Máy tính hoặc dán link)</label>
+          <div class="photo-upload-box">
+            <div class="photo-preview" id="memAvatarPreview">👤</div>
+            <div style="flex: 1;">
+              <input
+                type="file"
+                accept="image/*"
+                onchange="handleImageFileSelect(event, 'memAvatarData', 'memAvatarPreview', 320)"
+                style="font-size: 0.82rem; margin-bottom: 6px; padding: 4px;"
+              />
+              <input
+                type="text"
+                id="memAvatarUrlInput"
+                placeholder="Hoặc dán đường dẫn ảnh (URL)..."
+                oninput="syncAvatarUrl('memAvatarUrlInput', 'memAvatarData', 'memAvatarPreview')"
+                style="padding: 6px 10px; font-size: 0.82rem;"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="memFullName">Họ và tên thành viên (Con / Cháu) *</label>
+            <input type="text" id="memFullName" required placeholder="VD: Nguyễn Văn Minh" />
+          </div>
+          <div class="form-group">
+            <label for="memGender">Giới tính *</label>
+            <select id="memGender">
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="memBirthYear">🎂 Ngày tháng năm sinh *</label>
+            <input type="text" id="memBirthYear" placeholder="VD: 15/08/1988 hoặc 2026" />
+          </div>
+          <div class="form-group">
+            <label for="memRoleTitle">Vai vế / Danh xưng trong nhà</label>
+            <input type="text" id="memRoleTitle" placeholder="VD: Con trai / Cháu nội / Cháu ngoại" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="memHometown">🏡 Quê quán (Ghi Tỉnh/Thành để hiện lên Bản đồ) *</label>
+            <input type="text" id="memHometown" list="vnProvincesList" placeholder="VD: Nam Định, Thái Bình, Hà Nội, Nghệ An..." />
+          </div>
+          <div class="form-group">
+            <label for="memAddress">📍 Nơi ở hiện nay (Ghi Tỉnh/Thành để hiện lên Bản đồ) *</label>
+            <input type="text" id="memAddress" list="vnProvincesList" placeholder="VD: Hà Nội, TP.HCM, Hải Phòng, Đà Nẵng..." />
+          </div>
+        </div>
+        <datalist id="vnProvincesList">
+          <option value="Hà Nội"></option>
+          <option value="TP. Hồ Chí Minh"></option>
+          <option value="Hải Phòng"></option>
+          <option value="Đà Nẵng"></option>
+          <option value="Cần Thơ"></option>
+          <option value="Nam Định"></option>
+          <option value="Thái Bình"></option>
+          <option value="Hải Dương"></option>
+          <option value="Hưng Yên"></option>
+          <option value="Bắc Ninh"></option>
+          <option value="Bắc Giang"></option>
+          <option value="Quảng Ninh"></option>
+          <option value="Ninh Bình"></option>
+          <option value="Hà Nam"></option>
+          <option value="Vĩnh Phúc"></option>
+          <option value="Phú Thọ"></option>
+          <option value="Thái Nguyên"></option>
+          <option value="Thanh Hóa"></option>
+          <option value="Nghệ An"></option>
+          <option value="Hà Tĩnh"></option>
+          <option value="Quảng Bình"></option>
+          <option value="Thừa Thiên Huế"></option>
+          <option value="Quảng Nam"></option>
+          <option value="Khánh Hòa"></option>
+          <option value="Lâm Đồng"></option>
+          <option value="Bình Dương"></option>
+          <option value="Đồng Nai"></option>
+          <option value="Bà Rịa - Vũng Tàu"></option>
+        </datalist>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="memOrder">Thứ tự con trong gia đình (Con thứ mấy)</label>
+            <input type="number" id="memOrder" min="1" value="1" />
+          </div>
+          <div class="form-group">
+            <label for="memStatus">Tình trạng</label>
+            <select id="memStatus">
+              <option value="Còn sống">Đang sinh sống</option>
+              <option value="Đã mất">Đã khuất (Tưởng nhớ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-parchment); border: 1px dashed var(--border-gold); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+          <strong style="font-size: 0.85rem; color: var(--gold-600); display: block; margin-bottom: 8px;">
+            💍 Thông tin Vợ / Chồng (Điền khi đã lập gia đình, nếu còn nhỏ thì để trống)
+          </strong>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="memSpouseName">Họ và tên Vợ / Chồng (Dâu / Rể)</label>
+              <input type="text" id="memSpouseName" placeholder="Để trống nếu chưa kết hôn" />
+            </div>
+            <div class="form-group">
+              <label for="memSpouseBirthYear">🎂 Ngày tháng năm sinh Vợ / Chồng</label>
+              <input type="text" id="memSpouseBirthYear" placeholder="VD: 20/10/1990" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="memSpouseRole">Danh xưng Vợ / Chồng</label>
+              <input type="text" id="memSpouseRole" placeholder="VD: Vợ / Chồng / Con dâu / Con rể" />
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label>📸 Ảnh chân dung Vợ / Chồng</label>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="photo-preview" id="memSpouseAvatarPreview" style="width: 38px; height: 38px; font-size: 0.9rem;">💍</div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onchange="handleImageFileSelect(event, 'memSpouseAvatarData', 'memSpouseAvatarPreview', 320)"
+                  style="font-size: 0.78rem; padding: 4px;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="memPhone">📞 Số điện thoại liên hệ</label>
+            <input type="text" id="memPhone" placeholder="VD: 0908xxxxxx" />
+          </div>
+          <div class="form-group">
+            <label for="memBio">📖 Nghề nghiệp / Ghi chú kỷ niệm</label>
+            <input type="text" id="memBio" placeholder="Ghi chú về công việc, học vấn..." />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn btn-crimson" style="flex: 1; padding: 12px;">
+            💾 Lưu vào Gia Phả Nhà Tuyến - Phấn
+          </button>
+          <button
+            type="button"
+            id="deleteMemberBtn"
+            class="btn btn-outline"
+            style="color: #dc2626; display: none;"
+            onclick="deleteCurrentMember()"
+          >
+            🗑️ Xóa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Member Detail Profile View -->
+  <div class="overlay" id="memberDetailModal" onclick="if(event.target===this) closeMemberDetailModal()">
+    <div class="modal-card" id="memberDetailContent" style="max-width: 560px;"></div>
+  </div>
+
+  <!-- MODAL 4: Post New Family Activity -->
+  <div class="overlay" id="activityModal" onclick="if(event.target===this) closeActivityModal()">
+    <div class="modal-card" style="max-width: 580px;">
+      <button class="modal-close" onclick="closeActivityModal()">✕</button>
+      <h3 style="color: var(--crimson-800); margin-bottom: 6px;">📸 Đăng Hoạt Động &amp; Kỷ Niệm Gia Đình</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+        Mọi sự kiện như sinh em bé, thôi nôi, đỗ đạt, đám cưới, mừng thọ, giỗ chạp hay họp mặt đầu xuân đều được lưu giữ vĩnh viễn tại đây.
+      </p>
+
+      <form id="activityForm" onsubmit="submitActivityForm(event)">
+        <div class="form-group">
+          <label for="actTitle">Tiêu đề hoạt động / Sự kiện *</label>
+          <input type="text" id="actTitle" required placeholder="VD: Đón thành viên mới / Họp mặt đại gia đình dịp Tết..." />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="actCategory">Chuyên mục</label>
+            <select id="actCategory">
+              <option value="Tin vui đón thành viên mới">👶 Tin vui đón thành viên mới</option>
+              <option value="Họp mặt gia đình">👨‍👩‍👧‍👦 Họp mặt đại gia đình</option>
+              <option value="Lễ cưới / Báo hỷ">💒 Lễ cưới / Báo hỷ</option>
+              <option value="Mừng thọ / Sinh nhật">🎂 Mừng thọ / Sinh nhật</option>
+              <option value="Khuyến học / Đỗ đạt">🎓 Khuyến học / Đỗ đạt</option>
+              <option value="Ngày giỗ / Truyền thống">🕯️ Ngày giỗ / Truyền thống</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="actDate">Ngày diễn ra sự kiện</label>
+            <input type="date" id="actDate" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="actImage">📸 Ảnh kỷ niệm (Chọn từ Điện thoại / Máy tính hoặc dán link URL)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onchange="handleImageFileSelect(event, 'actImage', null, 900)"
+            style="font-size: 0.82rem; margin-bottom: 6px; padding: 4px;"
+          />
+          <input type="text" id="actImage" placeholder="Hoặc dán đường dẫn ảnh (https://...)" />
+        </div>
+        <div class="form-group">
+          <label for="actContent">Nội dung chi tiết *</label>
+          <textarea id="actContent" rows="4" required placeholder="Ghi lại khoảnh khắc, lời chúc hoặc câu chuyện kỷ niệm của gia đình..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-crimson" style="width: 100%; padding: 12px;">
+          🌟 Đăng lên Bảng Tin Đại Gia Đình
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Backup, Restore -->
+  <div class="overlay" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
+    <div class="modal-card" style="max-width: 580px;">
+      <button class="modal-close" onclick="closeBackupModal()">✕</button>
+      <h3 style="color: var(--crimson-800); margin-bottom: 8px;">🛡️ Lưu Giữ Gia Phả Trọn Đời — Không Bao Giờ Mất</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+        Bất cứ lúc nào gia đình cũng có thể tải về file sao lưu gốc (`.json`) để cất giữ trong Google Drive, USB hoặc điện thoại truyền cho đời sau.
+      </p>
+
+      <div style="background: var(--bg-parchment); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <h4 style="color: var(--crimson-800); margin-bottom: 6px;">1. Tải bản sao lưu toàn bộ Gia Phả (.JSON)</h4>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+          Chứa toàn bộ danh sách các đời, các nhánh, ảnh chân dung và toàn bộ bài viết hoạt động của gia đình.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-crimson" onclick="downloadBackupJSON()">
+            📥 Tải file Gia Phả Gốc (.json)
+          </button>
+          <button class="btn btn-outline" onclick="closeBackupModal(); window.print();">
+            🖨️ In / Xuất PDF Sổ Gia Phả
+          </button>
+        </div>
+      </div>
+
+      <div style="background: var(--bg-parchment); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px;">
+        <h4 style="color: var(--crimson-800); margin-bottom: 6px;">2. Khôi phục từ file Sao Lưu (Dành cho Quản trị gia tộc)</h4>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 10px;">
+          Chọn file `.json` đã tải trước đó để khôi phục nguyên trạng cây gia phả:
+        </p>
+        <input type="file" id="restoreFileInput" accept=".json" onchange="handleRestoreFile(event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: Cloud Database 24/7 Configuration -->
+  <div class="overlay" id="cloudModal" onclick="if(event.target===this) closeCloudModal()">
+    <div class="modal-card" style="max-width: 620px;">
+      <button class="modal-close" onclick="closeCloudModal()">✕</button>
+      <h3 style="color: var(--crimson-800); margin-bottom: 6px;">☁️ Đồng Bộ Đám Mây Dùng Chung 24/7 Cho Đại Gia Đình</h3>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 14px;">
+        Giúp cả 4 nhánh ở bất kỳ đâu (dùng điện thoại hay máy tính) khi thêm con cháu, thêm ảnh, ngày sinh, quê quán đều <strong>tự động hiện chung trên một Cây Gia Phả duy nhất 24/24</strong> kể cả khi bạn tắt máy tính!
+      </p>
+
+      <div id="cloudCurrentStatusBox" style="background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.88rem; color: #065f46;">
+        Đang kiểm tra kết nối đám mây...
+      </div>
+
+      <div style="background: var(--bg-parchment); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <h4 style="color: var(--crimson-800); margin-bottom: 6px;">🚀 Cách 1: Tự động tạo Phòng Đám Mây Chung (Chỉ 1 cú nhấp chuột — Không cần đăng ký)</h4>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+          Nhấn nút bên dưới để hệ thống tự động cấp một <strong>Mã Đám Mây Gia Đình</strong> và tạo đường link đồng bộ. Bạn chỉ cần gửi đường link đó qua Zalo cho cả nhà là mọi người dùng chung ngay!
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-crimson" onclick="createInstantCloudRoom()">
+            ⚡ Tạo / Đồng bộ Đám Mây Tự Động Ngay
+          </button>
+          <button type="button" class="btn btn-outline" onclick="copyShareableCloudLink()">
+            📋 Copy Link Gia Phả Có Gắn Đám Mây
+          </button>
+        </div>
+        <div id="instantCloudLinkBox" style="margin-top: 10px; font-size: 0.82rem; word-break: break-all; color: var(--crimson-800); font-weight: 700;"></div>
+      </div>
+
+      <div style="background: var(--bg-parchment); border: 1.5px solid var(--border-gold); border-radius: 12px; padding: 16px;">
+        <h4 style="color: var(--crimson-800); margin-bottom: 6px;">🔒 Cách 2: Kết nối Google Firebase bằng Gmail của bạn (Lưu trữ vĩnh viễn 100 năm)</h4>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px;">
+          Nếu muốn dữ liệu nằm trong chính tài khoản Gmail của gia đình bạn trên máy chủ Google:
+          <br/>1. Vào <a href="https://console.firebase.google.com" target="_blank" style="color: var(--crimson-800); font-weight: 700;">console.firebase.google.com</a> bằng Gmail → Tạo Project → Chọn <strong>Realtime Database → Create Database (chọn Start in test mode)</strong>.
+          <br/>2. Copy đường link có dạng <code>https://gia-pha-tuyen-phan-default-rtdb.firebaseio.com</code> dán vào ô dưới đây:
+        </p>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <input
+            type="url"
+            id="firebaseDbUrlInput"
+            placeholder="Dán link Firebase Realtime Database (https://....firebaseio.com)"
+          />
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-gold" onclick="saveFirebaseCloudUrl()">
+            💾 Lưu &amp; Đồng bộ lên Google Firebase
+          </button>
+          <button type="button" class="btn btn-outline" onclick="syncFromCloudNow(true)">
+            🔄 Tải dữ liệu mới nhất về
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div style="font-size: 1.1rem; font-weight: 800; margin-bottom: 6px;">
+        🌳 GIA PHẢ ĐẠI GIA ĐÌNH BỐ NGUYỄN HỒNG TUYẾN &amp; MẸ NGUYỄN THỊ PHẤN
+      </div>
+      <p style="color: #fef3c7; opacity: 0.9; margin-bottom: 8px;">
+        Bốn nhánh sum vầy: Nhánh 1 (Nhản - Son) • Nhánh 2 (Nhị - Lợi) • Nhánh 3 (Nhiên - Chiến) • Nhánh 4 (Thảnh - Phương Anh)
+      </p>
+      <p style="font-size: 0.8rem; opacity: 0.75;">
+        Trang web Gia Phả Trọn Đời — Lưu truyền muôn đời con cháu mai sau.
+      </p>
+    </div>
+  </footer>
+
+  <script src="public/seed-giapha.js"></script>
+  <script src="public/app.js"></script>
+</body>
+</html>

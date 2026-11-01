@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: gia-pha-tuyen-phan
+    env: node
+    plan: free
+    buildCommand: ""
+    startCommand: "node server.js"

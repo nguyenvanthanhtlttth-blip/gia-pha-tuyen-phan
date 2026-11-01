@@ -1,0 +1,10 @@
+{
+  "name": "gia-pha-tuyen-phan",
+  "version": "1.0.0",
+  "description": "Cây Gia Phả Trọn Đời Đại Gia Đình Tuyến - Phấn (Có phân quyền tài khoản theo từng nhánh)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "py": "python server.py"
+  }
+}
